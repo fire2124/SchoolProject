@@ -1,29 +1,41 @@
 package com.example.filip.schoolproject.Activity;
 
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import com.example.filip.schoolproject.RecyclerView.MovieAdapter;
-import com.example.filip.schoolproject.RecyclerView.MovieHolder;
-import com.example.filip.schoolproject.RecyclerView.MovieModel;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.GridView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.filip.schoolproject.RecyclerView.GridViewAdapter;
 import com.example.filip.schoolproject.R;
-import com.example.filip.schoolproject.RecyclerView.Tools;
-import java.lang.ref.WeakReference;
+import com.example.filip.schoolproject.RoomDb.Movie;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static android.os.Environment.getExternalStorageDirectory;
 
 
 public class MainActivity extends AppCompatActivity  {
@@ -31,20 +43,22 @@ public class MainActivity extends AppCompatActivity  {
 
     private final String CHANNEL_ID="personal_notifications";
     private final int NOTIFICATION_ID=1;
-    private BroadcastReceiver broadcastReceiver;
-    private final int PERMISSION_REQUEST_SMS=1000;
-    private IntentFilter intentFilter;
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter<MovieHolder> adapter;
-    private RecyclerView.LayoutManager layoutManager;
+
+    List<Movie> insertedMovies;
+    private final int PERMISSION_ID_ACCESS_STORAGE = 1000;
+    private final String fileName = "zastavky.txt";
+    private final String extPath = "/dataFiles";
+    private int cislo;
+
+    String text="";
 
 //TODO Aplikácia musí využívať tieto povinné prvky:
-//Broadcast receiver – niečo čo pošle echo v aplikácií v prípade, že nastane udalosť na kt. neexistuje listener skontrolovat ci mam pripojenie na wifi alebo k datam
-//Vlastnú službu (service) – niečo čo beží na pozadí // stahovanie dat upravit na kazdych 15 sekund
-//Aspoň 1 senzor (GPS sa neráta) // LIGHT nech pomaly blika vtedy ked (zapne gps) stahuju data
-//Notifikáciu (pozn. Toast nie je notifikácia) // notifikacia na pocet stiahnuti
-//Internú databázu (SQLite) //dpmp cestovny poriadok
-//osetrit vynimku na gps v pripade ze nejde gps
+//Broadcast receiver – niečo čo pošle echo v aplikácií v prípade, že nastane udalosť na kt. neexistuje listener //TODO skontrolovat ci mam pripojenie na wifi alebo k datam
+//Vlastnú službu (service) – niečo čo beží na pozadí //TODO stahovanie dat upravit na kazdych 15 sekund
+//Aspoň 1 senzor (GPS sa neráta) //TODO LIGHT nech pomaly blika vtedy ked (zapne gps) stahuju data
+//Notifikáciu (pozn. Toast nie je notifikácia) //TODO notifikacia na pocet stiahnuti
+//Internú databázu (SQLite) //dpmp cestovny poriadok--done
+//TODO osetrit vynimku na gps v pripade ze nejde gps
 
     //TODO:pozriet si handleri, intenty a cez nich pridavat veci
     //TODO:vsetky autobusy zobrazit do mapy-- mam jeden
@@ -54,21 +68,127 @@ public class MainActivity extends AppCompatActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        recyclerBusses();
+//      recyclerBusses();
         layoutChange();
         showNotification();
 
-    }
+        gridView();
 
-    private void recyclerBusses(){
-        recyclerView = findViewById(R.id.rv_movie_view);
-        layoutManager = new LinearLayoutManager(this);
-        List<MovieModel> data = Tools.getMovieData();
-        adapter = new MovieAdapter(data,new WeakReference<Context>(this));
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
-    }
+
+
+
+
+        }
+
+        @Override
+        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            switch(requestCode){
+                case PERMISSION_ID_ACCESS_STORAGE:{
+                    for(int i = 0;i < permissions.length;i++){
+                        if(permissions[i].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                            if(grantResults[i] == PackageManager.PERMISSION_GRANTED){
+                                Toast.makeText(this,"Writing to file ...",Toast.LENGTH_LONG).show();
+                                writeDataToFileInternal(insertedMovies,fileName);
+                                writeDataToFileExternal(insertedMovies,fileName,extPath);
+                            }
+                            else{
+                                //In real cases, this string should not be hardcoded and would be places inside the values/strings.xml file
+                                Toast.makeText(this,"Unable to get permissions, have to quit.",Toast.LENGTH_LONG).show();
+                                finish();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void writeDataToFileExternal(List<Movie> data, String fileName, String relPath){
+            if(checkExtStorage()[1]) {
+                File storageDir = getExternalStorageDirectory();
+
+                File dir = new File(storageDir.getAbsolutePath() + relPath);
+                if (!dir.exists())
+                    dir.mkdirs();
+
+                File file = new File(dir, fileName);
+
+                try {
+                    FileOutputStream osWriter = new FileOutputStream(file);
+
+                    osWriter.write("--- Tu sa zacina zapis ---".getBytes());
+                    osWriter.write(("\n").getBytes());
+                    for(Movie movie:data){
+                        osWriter.write(Long.toString(movie.getId()).getBytes());
+                        osWriter.write(("\t" + movie.getTitle()).getBytes());
+//                    osWriter.write(("\t" + movie.getKonecnazastavka1()).getBytes());
+//                    osWriter.write(("\t" + movie.getKonecnazastavka2()).getBytes());
+
+                        osWriter.write(("\t " + movie.getRelease_year()).getBytes());
+                        osWriter.write(("\t" + movie.getDirector()).getBytes());
+                        osWriter.write(("\n").getBytes());
+                    }
+                    osWriter.write("--- Tu sa konci zapis ---".getBytes());
+                    osWriter.write("\n".getBytes());
+                    osWriter.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                }
+            }
+        }
+
+        private boolean[] checkExtStorage(){
+            boolean extStorageMounted = false;
+            boolean extStorageCanWrite = false;
+            String state = Environment.getExternalStorageState();
+
+            if (Environment.MEDIA_MOUNTED.equals(state)) {
+                // Read and write
+                extStorageMounted = extStorageCanWrite = true;
+            } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+                // Only read
+                extStorageMounted = true;
+                extStorageCanWrite = false;
+            } else {
+                // No read, no write
+                extStorageMounted = extStorageCanWrite = false;
+            }
+            return new boolean[]{extStorageMounted,extStorageCanWrite};
+        }
+
+
+        private void writeDataToFileInternal(List<Movie> data, String fileName){
+            FileOutputStream outputStream;
+            try {
+                outputStream = openFileOutput(fileName, Context.MODE_PRIVATE);
+                outputStream.write("--- Tu sa zacina zapis ---".getBytes());
+                outputStream.write(("\n").getBytes());
+                for(Movie movie:data){
+                    outputStream.write(Long.toString(movie.getId()).getBytes());
+                    outputStream.write(("\t" + movie.getTitle()).getBytes());
+//                outputStream.write(("\t" + movie.getKonecnazastavka1()).getBytes());
+//                outputStream.write(("\t" + movie.getKonecnazastavka2()).getBytes());
+                    outputStream.write(("\t " + movie.getRelease_year()).getBytes());
+                    outputStream.write(("\t" + movie.getDirector()).getBytes());
+                    outputStream.write(("\n").getBytes());
+                }
+                outputStream.write("--- Tu sa konci zapis ---".getBytes());
+                outputStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+//    private void recyclerBusses(){
+//        recyclerView = findViewById(R.id.rv_movie_view);
+//        layoutManager = new LinearLayoutManager(this);
+//        List<MovieModel> data = Tools.getMovieData();
+//        adapter = new MovieAdapter(data,new WeakReference<Context>(this));
+//        recyclerView.setHasFixedSize(true);
+//        recyclerView.setLayoutManager(layoutManager);
+//        recyclerView.setAdapter(adapter);
+//    }
 
 
     @Override
@@ -152,6 +272,54 @@ public class MainActivity extends AppCompatActivity  {
             }
         });
     }
+
+    public void gridView() {
+        // Get the widgets reference from XML layout
+        GridView gv =  findViewById(R.id.gv);
+        final TextView tv= findViewById(R.id.txtInfo);
+        //  final TextView tv =  findViewById(R.id.tv);
+
+        String[] plants = new String[]{
+                "1","2","4","5","5D","7","8","10",
+                "11","12","13","14","15","17","18","19",
+                "20","21","22","24","27","28","29","30",
+                "32","32A","33","34","35","36","37","38","39",
+                "41","42","43","44","45","46",
+                "N1","N2","N3"
+        };
+
+        List<String> plantsList = new ArrayList<>(Arrays.asList(plants));
+        gv.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,plantsList));
+        gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Get the GridView selected/clicked item text
+                String selectedItem = parent.getItemAtPosition(position).toString();
+
+                // Display the selected/clicked item text and position on TextView
+                tv.setText("GridView item clicked : " +selectedItem
+                        + "\nAt index position : " + position);
+
+                Intent intent = new Intent(MainActivity.this,ActivityOne.class);
+                intent.putExtra("info","This is activity from card item index  ");
+                startActivity(intent);
+
+                Intent intent1= new Intent(MainActivity.this,ActivityOne.class);
+
+                intent1.putExtra("position",position);
+                startActivity(intent1);
+            }
+        });
+
+    }
+
+//    public void setUpList() {
+//        for (String item:array_characters) {
+//            lstSource.add(item);
+//        }
+//    }
+
+
 }
 
 
