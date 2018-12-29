@@ -8,6 +8,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
+
 import static android.content.Context.LOCATION_SERVICE;
 
 
@@ -52,10 +54,12 @@ public class GpsTracker implements LocationListener {
 
         @Override
         public void onProviderEnabled(String provider) {
+
         }
 
         @Override
         public void onProviderDisabled(String provider) {
+
         }
 }
 

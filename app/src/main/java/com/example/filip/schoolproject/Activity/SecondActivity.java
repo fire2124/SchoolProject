@@ -29,6 +29,7 @@ public class SecondActivity  extends AppCompatActivity {
     private final int PERMISSION_WRITE_EXT_STORAGE_ID = 1000;
     private final int PERMISSION_FINE_LOC_ID = 1001;
     double lat,lon;
+    private static final int MY_PERMISSION_REQUEST_CODE=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,7 @@ public class SecondActivity  extends AppCompatActivity {
         setContentView(R.layout.second_activity);
         sw=findViewById(R.id.switch1);
         layoutChange();
-
+        setUpLocation();
         //ziskavanie povoleni
         if(ActivityCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) !=PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_WRITE_EXT_STORAGE_ID);
@@ -152,6 +153,25 @@ public class SecondActivity  extends AppCompatActivity {
         if(map!=null)
             map.onResume();
     }
+
+    private void setUpLocation() {
+
+        if (android.support.v4.app.ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED &&
+                android.support.v4.app.ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED)
+        {requestRuntimePermission();
+        }
+    }
+
+    private void requestRuntimePermission() {
+
+        android.support.v4.app.ActivityCompat.requestPermissions(this, new String[]{
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        } ,MY_PERMISSION_REQUEST_CODE);
+    }
+
 }
 
 
