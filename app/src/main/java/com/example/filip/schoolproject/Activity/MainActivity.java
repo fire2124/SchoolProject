@@ -5,10 +5,13 @@ import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,6 +29,7 @@ import android.widget.Toast;
 import com.example.filip.schoolproject.RecyclerView.GridViewAdapter;
 import com.example.filip.schoolproject.R;
 import com.example.filip.schoolproject.RoomDb.Movie;
+import com.example.filip.schoolproject.WIFIdirectBroadcastReceiver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,6 +45,14 @@ import static android.os.Environment.getExternalStorageDirectory;
 public class MainActivity extends AppCompatActivity  {
 
 
+    private WifiP2pManager mManager;
+    //this class provides the API for managing wifi peer to peer connetivity
+    private WifiP2pManager.Channel mChannel;
+    // a channel that connects the app to the wifi p2p framework
+    // most p2p operations require a channel as an argument
+    private BroadcastReceiver mReceiver;
+    private IntentFilter mIntentFilter;
+
     private final String CHANNEL_ID="personal_notifications";
     private final int NOTIFICATION_ID=1;
 
@@ -53,8 +65,6 @@ public class MainActivity extends AppCompatActivity  {
     String text="";
 
 //TODO Aplikácia musí využívať tieto povinné prvky:
-    //todo cele
-//Broadcast receiver – niečo čo pošle echo v aplikácií v prípade, že nastane udalosť na kt. neexistuje listener //TODO skontrolovat ci mam pripojenie na wifi alebo k datam
     //todo upravit
 //Vlastnú službu (service) – niečo čo beží na pozadí //TODO stahovanie dat upravit na kazdych 15 sekund
 //Notifikáciu (pozn. Toast nie je notifikácia) //TODO notifikacia na pocet stiahnuti len opravit
@@ -72,7 +82,7 @@ public class MainActivity extends AppCompatActivity  {
         layoutChange();
         showNotification();
         gridView();
-
+        wifiBroadcastReceiver();
 
 
         }
@@ -188,14 +198,21 @@ public class MainActivity extends AppCompatActivity  {
 //    }
 
 
-    @Override
-    protected void onPause() {
-        super.onPause();
+    public void broadcastIntent(View view){
+        Intent intent = new Intent();
+        intent.setAction("com.tutorialspoint.CUSTOM_INTENT"); sendBroadcast(intent);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        registerReceiver(mReceiver,mIntentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mReceiver);
     }
 
     private void showNotification(){
@@ -308,6 +325,18 @@ public class MainActivity extends AppCompatActivity  {
             }
         });
 
+    }
+
+    private void wifiBroadcastReceiver(){
+        mManager=(WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        mReceiver= new WIFIdirectBroadcastReceiver(mManager,mChannel,this);
+        mIntentFilter= new IntentFilter();
+        mChannel=mManager.initialize(this,getMainLooper(),null);
+
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
     }
 
 

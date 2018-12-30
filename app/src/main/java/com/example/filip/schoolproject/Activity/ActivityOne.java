@@ -54,8 +54,6 @@ public class ActivityOne extends AppCompatActivity {
 
         }
 
-
-
         DbGetData taskLoadData = new DbGetData();
 
         Movie newMovie = new Movie("1","Nižná Šebastová\n","Šebastová\n");
@@ -102,9 +100,6 @@ public class ActivityOne extends AppCompatActivity {
         Movie newMovie42 = new Movie("N3","Nižná Šebastová\n","Sibírska\n");
 
 
-
-
-
         //taskLoadData.execute(newMovie,newMovie2);
 
         taskLoadData.execute(newMovie,newMovie2,newMovie3,newMovie4,newMovie5,newMovie6,newMovie7,newMovie8,newMovie9,newMovie10,
@@ -133,7 +128,7 @@ public class ActivityOne extends AppCompatActivity {
         protected void onPostExecute(List<Movie> movies) {
             super.onPostExecute(movies);
             insertedMovies = movies;
-            
+
             Toast.makeText(ActivityOne.this,insertedMovies.get(cislo).getDirector(),Toast.LENGTH_LONG).show();
 
             ((TextView)findViewById(R.id.tv_movie)).setText("Číslo autobusu: \n"+insertedMovies.get(cislo).getTitle());
