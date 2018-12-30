@@ -48,6 +48,9 @@
 
         <activity android:name=".Activity.ActivityOne"
             android:label="Zoznam Autobusov"/>
+
+        <activity android:name=".Activity.ActivityNone"
+            android:label="TurnOFFbySensor"/>
 <!--<activity -->
     <!--android:name=".RestApi.Api"-->
     <!--android:label="@string/app_name"-->

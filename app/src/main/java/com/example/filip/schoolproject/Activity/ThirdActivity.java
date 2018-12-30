@@ -2,40 +2,30 @@ package com.example.filip.schoolproject.Activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.filip.schoolproject.GpsTracker;
 import com.example.filip.schoolproject.R;
 import com.example.filip.schoolproject.RestApi.ApiMethods;
 import com.example.filip.schoolproject.RestApi.ApiTools;
 import com.example.filip.schoolproject.RestApi.Buss;
 import com.google.gson.JsonObject;
-
 import org.osmdroid.api.IMapController;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
-
 import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -61,6 +51,7 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
     public int direction;
     //public List<Integer> direction;
     public String number;
+    private static int SPLASH_TIME = 15000;
     //public List<String> number;
 
    // Switch sw;
@@ -112,6 +103,51 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
 //                }
 //            }
 //        });
+
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+////                //Do any action here. Now we are moving to next page
+////                Intent mySuperIntent = new Intent(ActivitySplash.this, MainActivity.class);
+////                startActivity(mySuperIntent);
+////                /* This 'finish()' is for exiting the app when back button pressed
+////                 *  from Home page which is ActivityHome
+////                 */
+////                finish();
+//                Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).
+//                        baseUrl("https://mhdpresov.sk/").build();
+//                ApiMethods api = retrofit.create(ApiMethods.class);
+//                api.getGPSBusses().enqueue(new Callback<JsonObject>() {
+//                    @Override
+//                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+//                        zoznamBusov = ApiTools.getBussesFromApi(response.body(),ThirdActivity.this);
+//
+//                        mFirstUserTV.setText(zoznamBusov.get(0).getNumber());
+//                        mFirstDelay.setText(String.valueOf(zoznamBusov.get(0).getDelay()));
+//                        mFirstDeparture.setText(zoznamBusov.get(0).getDeparture());
+//                        mFirstDirection.setText(String.valueOf(zoznamBusov.get(0).getDirection()));
+//                        mFirstLat.setText(zoznamBusov.get(0).getLat().toString());
+//                        mFirstLng.setText(zoznamBusov.get(0).getLng().toString());
+//
+//                        lat= zoznamBusov.get(0).getLat();
+//                        lon= zoznamBusov.get(0).getLng();
+//                        direction=zoznamBusov.get(0).getDirection();
+//                        number= zoznamBusov.get(0).getNumber();
+//
+//                        if(ActivityCompat.checkSelfPermission(ThirdActivity.this,Manifest.permission.WRITE_EXTERNAL_STORAGE) !=PackageManager.PERMISSION_GRANTED)
+//                            ActivityCompat.requestPermissions(ThirdActivity.this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_WRITE_EXT_STORAGE_ID);
+//                        else
+//                            initialMapSetup();
+//                        Log.v("","");
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<JsonObject> call, Throwable t) {
+//                        Toast.makeText(ThirdActivity.this, t.getMessage(),Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//            }
+//        }, 14000);
 
         Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).
                 baseUrl("https://mhdpresov.sk/").build();
@@ -202,6 +238,24 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
             startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
             map.getOverlays().add(startMarker);
 
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                //Do any action here. Now we are moving to next page
+//                Marker startMarker = new Marker(map);
+//
+//                startMarker.setIcon(getResources().getDrawable(R.drawable.bus_black_25dp));
+//                startMarker.setRotation(direction);
+//                startMarker.setTitle(number);
+//                startMarker.setPosition(new GeoPoint(lat, lon));
+//                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+//                map.getOverlays().add(startMarker);
+//                /* This 'finish()' is for exiting the app when back button pressed
+//                 *  from Home page which is ActivityHome
+//                 */
+//
+//            }
+//        }, SPLASH_TIME);
        // }
 
   }

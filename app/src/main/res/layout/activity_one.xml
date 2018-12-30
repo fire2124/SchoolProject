@@ -7,6 +7,23 @@
     tools:context=".Activity.ActivityOne"
     tools:ignore="VectorDrawableCompat">
 
+    <Button
+        android:id="@+id/sensorButton"
+        android:layout_width="match_parent"
+        android:layout_height="63dp"
+        android:layout_above="@+id/imageButton3"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="387dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="-1dp"
+        android:background="@drawable/colorbutton"
+        android:text="Sensor"
+        android:textSize="29dp"
+        android:textAlignment="center" />
+
     <TextView
         android:id="@+id/txtInfo"
         android:layout_width="wrap_content"
@@ -16,21 +33,22 @@
         android:layout_marginTop="29dp"
         android:text="Activity One"
         android:textAlignment="center"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
 
     <TextView
         android:id="@+id/tv_movie"
-        android:layout_width="168dp"
-        android:layout_height="54dp"
+        android:layout_width="181dp"
+        android:layout_height="58dp"
+        android:layout_above="@+id/tv_movie1"
+        android:layout_alignStart="@+id/tv_movie1"
         android:layout_alignEnd="@+id/tv_movie1"
-        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="104dp"
-        android:layout_marginTop="114dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="343dp"
+        android:layout_marginStart="-2dp"
+        android:layout_marginTop="101dp"
+        android:layout_marginEnd="-3dp"
+        android:layout_marginBottom="14dp"
         android:text="Čislo autobusu"
         android:textAlignment="center"
         android:textSize="18sp"
@@ -43,14 +61,16 @@
 
     <TextView
         android:id="@+id/tv_movie1"
-        android:layout_width="177dp"
-        android:layout_height="44dp"
+        android:layout_width="180dp"
+        android:layout_height="63dp"
+        android:layout_above="@+id/tv_movie2"
         android:layout_alignStart="@+id/tv_movie2"
-        android:layout_alignParentBottom="true"
+        android:layout_alignEnd="@+id/tv_movie2"
         android:layout_marginStart="0dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="274dp"
-        android:text="Zaciatocna zastavka"
+        android:layout_marginEnd="-3dp"
+        android:layout_marginBottom="23dp"
+        android:text="Začiatočná zastávka"
         android:textAlignment="center"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -62,13 +82,13 @@
 
     <TextView
         android:id="@+id/tv_movie2"
-        android:layout_width="173dp"
-        android:layout_height="53dp"
+        android:layout_width="181dp"
+        android:layout_height="62dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="206dp"
-        android:text="Konecna zastavka"
+        android:layout_marginBottom="190dp"
+        android:text="Konečná zastávka"
         android:textAlignment="center"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -109,4 +129,19 @@
         android:background="@drawable/colorbutton"
         app:srcCompat="@drawable/ic_directions_bus_black_24dp"
         />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/tv_movie"
+        android:layout_alignBottom="@+id/tv_movie"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="53dp"
+        android:layout_marginTop="-6dp"
+        android:layout_marginEnd="-3dp"
+        android:layout_marginBottom="-2dp"
+        android:layout_toStartOf="@+id/tv_movie"
+        app:srcCompat="@drawable/bus_black_25dp" />
+
 </RelativeLayout>

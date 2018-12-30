@@ -55,8 +55,6 @@ public class MainActivity extends AppCompatActivity  {
 //TODO Aplikácia musí využívať tieto povinné prvky:
     //todo cele
 //Broadcast receiver – niečo čo pošle echo v aplikácií v prípade, že nastane udalosť na kt. neexistuje listener //TODO skontrolovat ci mam pripojenie na wifi alebo k datam
-    //todo len skopcit niekde
-//Aspoň 1 senzor (GPS sa neráta) //TODO LIGHT nech pomaly blika vtedy ked (zapne gps) stahuju data --> ak prejdem okolo tak sa vypne
     //todo upravit
 //Vlastnú službu (service) – niečo čo beží na pozadí //TODO stahovanie dat upravit na kazdych 15 sekund
 //Notifikáciu (pozn. Toast nie je notifikácia) //TODO notifikacia na pocet stiahnuti len opravit

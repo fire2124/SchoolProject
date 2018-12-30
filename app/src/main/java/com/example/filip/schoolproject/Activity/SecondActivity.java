@@ -47,22 +47,7 @@ public class SecondActivity  extends AppCompatActivity {
 
         ActivityCompat.requestPermissions(SecondActivity.this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, 123);
-
-        sw.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GpsTracker gt = new GpsTracker(getApplicationContext());
-                Location   l = gt.getLocation();
-              //      gt.onStatusChanged(turn);
-                if( l == null){
-                    Toast.makeText(getApplicationContext(),"GPS unable to get Value",Toast.LENGTH_SHORT).show();
-                }else {
-                     lat = l.getLatitude();
-                     lon = l.getLongitude();
-                    Toast.makeText(getApplicationContext(),"GPS Lat = "+lat+"\n lon = "+lon,Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+       sw();
     }
 
     public void switchBox(View v){
@@ -172,6 +157,23 @@ public class SecondActivity  extends AppCompatActivity {
         } ,MY_PERMISSION_REQUEST_CODE);
     }
 
+    private void sw(){
+        sw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GpsTracker gt = new GpsTracker(getApplicationContext());
+                Location   l = gt.getLocation();
+                //      gt.onStatusChanged(turn);
+                if( l == null){
+                    Toast.makeText(getApplicationContext(),"GPS unable to get Value",Toast.LENGTH_SHORT).show();
+                }else {
+                    lat = l.getLatitude();
+                    lon = l.getLongitude();
+                    Toast.makeText(getApplicationContext(),"GPS Lat = "+lat+"\n lon = "+lon,Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 }
 
 

@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +30,7 @@ import java.util.List;
 import static android.os.Environment.getExternalStorageDirectory;
 
 public class ActivityOne extends AppCompatActivity {
-
+    Button btnSensor;
     List<Movie> insertedMovies;
     private final int PERMISSION_ID_ACCESS_STORAGE = 1000;
     private final String fileName = "zastavky.txt";
@@ -40,6 +41,8 @@ public class ActivityOne extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_one);
+
+        activityNone();
         layoutChange();
         TextView txtInfo = findViewById(R.id.txtInfo);
         if(getIntent() != null)
@@ -130,19 +133,16 @@ public class ActivityOne extends AppCompatActivity {
         protected void onPostExecute(List<Movie> movies) {
             super.onPostExecute(movies);
             insertedMovies = movies;
-
-
-
-
+            
             Toast.makeText(ActivityOne.this,insertedMovies.get(cislo).getDirector(),Toast.LENGTH_LONG).show();
 
-            ((TextView)findViewById(R.id.tv_movie)).setText(insertedMovies.get(cislo).getTitle());
+            ((TextView)findViewById(R.id.tv_movie)).setText("Číslo autobusu: \n"+insertedMovies.get(cislo).getTitle());
             saveFirstMovieNameToSharedPreferences("dataKey",insertedMovies.get(cislo).getTitle());
 
-            ((TextView)findViewById(R.id.tv_movie1)).setText(insertedMovies.get(cislo).getRelease_year());
+            ((TextView)findViewById(R.id.tv_movie1)).setText("Začiatočná zastávka: \n"+insertedMovies.get(cislo).getRelease_year());
             saveFirstMovieNameToSharedPreferences("dataKey2",insertedMovies.get(cislo).getRelease_year());
 
-            ((TextView)findViewById(R.id.tv_movie2)).setText(insertedMovies.get(cislo).getDirector());
+            ((TextView)findViewById(R.id.tv_movie2)).setText("Konečná zastávka: \n"+insertedMovies.get(cislo).getDirector());
             saveFirstMovieNameToSharedPreferences("dataKey3",insertedMovies.get(cislo).getDirector());
 
 //            ((TextView)findViewById(R.id.tv_movie1)).setText(insertedMovies.get(0).getKonecnazastavka1());
@@ -304,6 +304,19 @@ public class ActivityOne extends AppCompatActivity {
                 //Tu dam to co sa ma stat ked sa klikne na tlacidlo
                 //Intent mi povie o tom co chcem urobit ... aktualne prejst z konextu aktivity MainActivity + chcem vytvorit novy kontext z aktivity FlightDetails
                 Intent i = new Intent(ActivityOne.this,ThirdActivity.class);
+                startActivity(i);
+            }
+        });
+    }
+
+    public void activityNone(){
+        btnSensor=findViewById(R.id.sensorButton);
+        btnSensor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Tu dam to co sa ma stat ked sa klikne na tlacidlo
+                //Intent mi povie o tom co chcem urobit ... aktualne prejst z konextu aktivity MainActivity + chcem vytvorit novy kontext z aktivity FlightDetails
+                Intent i = new Intent(ActivityOne.this,ActivityNone.class);
                 startActivity(i);
             }
         });
