@@ -2,6 +2,7 @@ package com.example.filip.schoolproject.Activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -26,6 +27,9 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,22 +44,29 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
     private TextView mFirstDirection;
     private TextView mFirstLat;
     private TextView mFirstLng;
+
     private List<Buss> zoznamBusov;
+
  //   Button btnLoc;
     public TextView locationText;
     public LocationManager locManager;
     public final int PERMISSION_LOCATION_ID = 1000;
 
     public double lat,lon;
-    //public List<Double> lat,lon;
+   // public List<Double> lat,lon;
     public int direction;
-    //public List<Integer> direction;
+   // public List<Integer> direction;
     public String number;
-    private static int SPLASH_TIME = 15000;
-    //public List<String> number;
 
+
+    private static int SPLASH_TIME = 15000;
+
+    public int count;
    // Switch sw;
+    Marker startMarker;
+    IMapController controller;
     MapView map;
+    int j;
     private final int PERMISSION_WRITE_EXT_STORAGE_ID = 1000;
     private final int PERMISSION_FINE_LOC_ID = 1001;
     //double lat,lon;
@@ -72,21 +83,16 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
 
         //locationText = findViewById(R.id.tv_location);
         layoutChange();
-//        if(ActivityCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) !=PackageManager.PERMISSION_GRANTED)
-//            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_WRITE_EXT_STORAGE_ID);
-//        else
-//            //inicializacia mapy
-//            initialMapSetup();
+        if(ActivityCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) !=PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_WRITE_EXT_STORAGE_ID);
+        else
+            //inicializacia mapy
+            initialMapSetup();
 
-//        locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-//                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},PERMISSION_LOCATION_ID);
-//            return;
-//        }
-//        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 5, this);
-//
-//       // btnLoc = findViewById(R.id.switch1);
+        lockManager();
+
+
+       // btnLoc = findViewById(R.id.switch1);
 //        ActivityCompat.requestPermissions(ThirdActivity.this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 123);
 //        btnLoc.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -103,6 +109,80 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
 //                }
 //            }
 //        });
+        Thread thread = new Thread(){
+            public void run(){
+        new Timer().scheduleAtFixedRate(new TimerTask(){
+            @Override
+            public void run(){
+//                Thread thread = new Thread(){
+//                    public void run(){initialMapSetup(); initialMapSetup();
+                initialMapSetup();
+                Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).
+                        baseUrl("https://mhdpresov.sk/").build();
+                ApiMethods api = retrofit.create(ApiMethods.class);
+                api.getGPSBusses().enqueue(new Callback<JsonObject>() {
+                    @Override
+                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                        zoznamBusov = ApiTools.getBussesFromApi(response.body(),ThirdActivity.this);
+
+                        mFirstUserTV.setText(zoznamBusov.get(0).getNumber());
+                        mFirstDelay.setText(String.valueOf(zoznamBusov.get(0).getDelay()));
+                        mFirstDeparture.setText(zoznamBusov.get(0).getDeparture());
+                        mFirstDirection.setText(String.valueOf(zoznamBusov.get(0).getDirection()));
+                        mFirstLat.setText(zoznamBusov.get(0).getLat().toString());
+                        mFirstLng.setText(zoznamBusov.get(0).getLng().toString());
+
+                            number=zoznamBusov.get(0).getNumber();
+                            lat= zoznamBusov.get(0).getLat();
+                            lon= zoznamBusov.get(0).getLng();
+                            direction= zoznamBusov.get(0).getDirection();
+//                        for(j=0;j<zoznamBusov.size();j++) {
+//                            number[j] = zoznamBusov.get(j).getNumber();
+//                        }
+                            mFirstUserTV.setText(number);
+                            controller.setCenter(new GeoPoint(lat, lon));
+                            map.getOverlays().remove(startMarker);
+                            startMarker = new Marker(map);
+                            startMarker.setIcon(getResources().getDrawable(R.drawable.bus_black_25dp));
+                            startMarker.setRotation(direction);
+                            startMarker.setTitle(number);
+                            startMarker.setPosition(new GeoPoint(lat, lon));
+                            startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                            map.getOverlays().add(startMarker);
+
+                                count++;
+                                Intent intent = getIntent();
+                                intent.putExtra("count",count);
+
+                            Log.v("", "");
+
+//
+
+
+//                        Thread thread = new Thread(){
+//                            public void run(){
+//
+//
+//                            }
+//                        };
+//                        thread.start();
+                    }
+
+                    @Override
+                    public void onFailure(Call<JsonObject> call, Throwable t) {
+                        Toast.makeText(ThirdActivity.this, t.getMessage(),Toast.LENGTH_LONG).show();
+                    }
+                });
+//                    }
+//                };
+//
+//                thread.start();
+            }
+        },0,15000);
+            }
+        };
+
+        thread.start();
 
 //        new Handler().postDelayed(new Runnable() {
 //            @Override
@@ -147,40 +227,50 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
 //                    }
 //                });
 //            }
-//        }, 14000);
+//        }, 15000);
 
-        Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).
-                baseUrl("https://mhdpresov.sk/").build();
-        ApiMethods api = retrofit.create(ApiMethods.class);
-        api.getGPSBusses().enqueue(new Callback<JsonObject>() {
-            @Override
-            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                zoznamBusov = ApiTools.getBussesFromApi(response.body(),ThirdActivity.this);
+//        Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create()).
+//                baseUrl("https://mhdpresov.sk/").build();
+//        ApiMethods api = retrofit.create(ApiMethods.class);
+//        api.getGPSBusses().enqueue(new Callback<JsonObject>() {
+//            @Override
+//            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+//                zoznamBusov = ApiTools.getBussesFromApi(response.body(),ThirdActivity.this);
+//
+//                mFirstUserTV.setText(zoznamBusov.get(0).getNumber());
+//                mFirstDelay.setText(String.valueOf(zoznamBusov.get(0).getDelay()));
+//                mFirstDeparture.setText(zoznamBusov.get(0).getDeparture());
+//                mFirstDirection.setText(String.valueOf(zoznamBusov.get(0).getDirection()));
+//                mFirstLat.setText(zoznamBusov.get(0).getLat().toString());
+//                mFirstLng.setText(zoznamBusov.get(0).getLng().toString());
+//
+//                lat= zoznamBusov.get(0).getLat();
+//                lon= zoznamBusov.get(0).getLng();
+//                direction=zoznamBusov.get(0).getDirection();
+//                number= zoznamBusov.get(0).getNumber();
+//
+//                if(ActivityCompat.checkSelfPermission(ThirdActivity.this,Manifest.permission.WRITE_EXTERNAL_STORAGE) !=PackageManager.PERMISSION_GRANTED)
+//                    ActivityCompat.requestPermissions(ThirdActivity.this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_WRITE_EXT_STORAGE_ID);
+//                else
+//                    initialMapSetup();
+//                Log.v("","");
+//            }
+//
+//            @Override
+//            public void onFailure(Call<JsonObject> call, Throwable t) {
+//                Toast.makeText(ThirdActivity.this, t.getMessage(),Toast.LENGTH_LONG).show();
+//            }
+//        });
+    }
 
-                mFirstUserTV.setText(zoznamBusov.get(0).getNumber());
-                mFirstDelay.setText(String.valueOf(zoznamBusov.get(0).getDelay()));
-                mFirstDeparture.setText(zoznamBusov.get(0).getDeparture());
-                mFirstDirection.setText(String.valueOf(zoznamBusov.get(0).getDirection()));
-                mFirstLat.setText(zoznamBusov.get(0).getLat().toString());
-                mFirstLng.setText(zoznamBusov.get(0).getLng().toString());
-
-                lat= zoznamBusov.get(0).getLat();
-                lon= zoznamBusov.get(0).getLng();
-                direction=zoznamBusov.get(0).getDirection();
-                number= zoznamBusov.get(0).getNumber();
-
-                if(ActivityCompat.checkSelfPermission(ThirdActivity.this,Manifest.permission.WRITE_EXTERNAL_STORAGE) !=PackageManager.PERMISSION_GRANTED)
-                    ActivityCompat.requestPermissions(ThirdActivity.this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_WRITE_EXT_STORAGE_ID);
-                else
-                    initialMapSetup();
-                Log.v("","");
-            }
-
-            @Override
-            public void onFailure(Call<JsonObject> call, Throwable t) {
-                Toast.makeText(ThirdActivity.this, t.getMessage(),Toast.LENGTH_LONG).show();
-            }
-        });
+    private void lockManager() {
+        locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},PERMISSION_LOCATION_ID);
+            return;
+        }
+        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 5, this);
     }
 
 
@@ -222,45 +312,51 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
-        IMapController controller = map.getController();
+        controller = map.getController();
         controller.setZoom(18.0d);
-        controller.setCenter(new GeoPoint(lat, lon));
+
 
        // List<Marker> startMarker= new ArrayList<Marker>((Collection<? extends Marker>) map);
         //Creating a list of markers
       //  for(int i = 0 ; i<zoznamBusov.size();i++) {
-            Marker startMarker = new Marker(map);
-
-            startMarker.setIcon(getResources().getDrawable(R.drawable.bus_black_25dp));
-            startMarker.setRotation(direction);
-            startMarker.setTitle(number);
-            startMarker.setPosition(new GeoPoint(lat, lon));
-            startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            map.getOverlays().add(startMarker);
+//            Marker startMarker = new Marker(map);
+//            startMarker.setIcon(getResources().getDrawable(R.drawable.bus_black_25dp));
+//            startMarker.setRotation(direction);
+//            startMarker.setTitle(number);
+//            startMarker.setPosition(new GeoPoint(lat, lon));
+//            startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+//            map.getOverlays().add(startMarker);
 
 //        new Handler().postDelayed(new Runnable() {
 //            @Override
 //            public void run() {
-//                //Do any action here. Now we are moving to next page
-//                Marker startMarker = new Marker(map);
 //
+//                Marker startMarker = new Marker(map);
 //                startMarker.setIcon(getResources().getDrawable(R.drawable.bus_black_25dp));
 //                startMarker.setRotation(direction);
 //                startMarker.setTitle(number);
 //                startMarker.setPosition(new GeoPoint(lat, lon));
 //                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
 //                map.getOverlays().add(startMarker);
-//                /* This 'finish()' is for exiting the app when back button pressed
-//                 *  from Home page which is ActivityHome
-//                 */
+//
 //
 //            }
 //        }, SPLASH_TIME);
-       // }
+
+//        new Timer().scheduleAtFixedRate(new TimerTask(){
+//            @Override
+//            public void run(){
+//                Marker startMarker = new Marker(map);
+//                startMarker.setIcon(getResources().getDrawable(R.drawable.bus_black_25dp));
+//                startMarker.setRotation(direction);
+//                startMarker.setTitle(number);
+//                startMarker.setPosition(new GeoPoint(lat, lon));
+//                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+//                map.getOverlays().add(startMarker);
+//            }
+//        },0,15000);
 
   }
-
-
 
     @Override
     protected void onPause() {

@@ -218,9 +218,12 @@ public class MainActivity extends AppCompatActivity  {
     private void showNotification(){
             String id= "main_channel";
 
+            Intent intent = getIntent();
+            Integer count = intent.getIntExtra("count",0);
+
             NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            CharSequence name="Channel Name";
-            String description= "Channel Description";
+            CharSequence name="Pocet stiahnuti "+count;
+            String description= "Channel Description " +count;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             int importance= NotificationManager.IMPORTANCE_HIGH;

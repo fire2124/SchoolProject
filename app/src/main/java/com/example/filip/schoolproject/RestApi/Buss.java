@@ -1,12 +1,17 @@
 package com.example.filip.schoolproject.RestApi;
 
+import java.util.List;
+
 public class Buss {
+
+
     public String number;
     public String departure;
     public int direction;
     public int delay;
     public Double lat;
     public Double lng;
+
 
     public String getNumber() {
         return number;

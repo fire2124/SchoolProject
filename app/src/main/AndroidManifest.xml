@@ -60,6 +60,7 @@
             </intent-filter>
 
         </receiver>
+        <service android:name=".LocationService"/>
 
     </application>
 
