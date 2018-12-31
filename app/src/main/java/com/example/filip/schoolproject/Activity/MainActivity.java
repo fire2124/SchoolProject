@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity  {
 
 //TODO Aplikácia musí využívať tieto povinné prvky:
     //todo upravit
-//Vlastnú službu (service) – niečo čo beží na pozadí //TODO stahovanie dat upravit na kazdych 15 sekund
+//Vlastnú službu (service) – niečo čo beží na pozadí //TODO stahovanie dat upravit na kazdych 15 sekund -- notifikacia
 //Notifikáciu (pozn. Toast nie je notifikácia) //TODO notifikacia na pocet stiahnuti len opravit
 
 
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
 
         layoutChange();
-        showNotification();
+       // showNotification();
         gridView();
         wifiBroadcastReceiver();
 
@@ -307,6 +307,8 @@ public class MainActivity extends AppCompatActivity  {
 
         List<String> plantsList = new ArrayList<>(Arrays.asList(plants));
         gv.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,plantsList));
+        gv.setBackgroundColor(Color.parseColor("#3F51B5"));
+
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

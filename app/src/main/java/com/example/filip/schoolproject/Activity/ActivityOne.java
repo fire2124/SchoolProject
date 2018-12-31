@@ -129,7 +129,7 @@ public class ActivityOne extends AppCompatActivity {
             super.onPostExecute(movies);
             insertedMovies = movies;
 
-            Toast.makeText(ActivityOne.this,insertedMovies.get(cislo).getDirector(),Toast.LENGTH_LONG).show();
+            //Toast.makeText(ActivityOne.this,insertedMovies.get(cislo).getDirector(),Toast.LENGTH_LONG).show();
 
             ((TextView)findViewById(R.id.tv_movie)).setText("Číslo autobusu: \n"+insertedMovies.get(cislo).getTitle());
             saveFirstMovieNameToSharedPreferences("dataKey",insertedMovies.get(cislo).getTitle());
